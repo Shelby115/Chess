@@ -1,0 +1,20 @@
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="./Chess.css" />
+    </head>
+    <body>
+        <canvas id="Game" width="500" height="500"></canvas>
+        <script  type="text/javascript" src="Game.js"></script>
+        <script  type="text/javascript" src="Map.js"></script>
+        <script  type="text/javascript" src="Unit.js"></script>
+        <script  type="text/javascript" src="Units/Pawn.js"></script>
+        <script id="start-game" type="text/javascript">
+            var game = null;
+            window.addEventListener("load", function () {
+                const canvas = document.querySelector("#Game");
+                game = new Game(canvas);
+                game.draw();
+            });
+        </script>
+    </body>
+</html>
