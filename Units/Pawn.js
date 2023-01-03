@@ -1,12 +1,13 @@
 class Pawn extends Unit {
     /**
      * Constructs a pawn and adds it to the map with the specified position.
+     * @param {string} owner The owner of the unit (Who controls it).
      * @param {Map} map The map the unit will be added to.
      * @param {int} x The x coordinate (should not be greater than or equal to the map's width).
      * @param {int} y The y coordinate (should not be greater than or equal to the map's height).
      */
-    constructor(map, x, y) {
-        super("Pawn", null, map, x, y);
+    constructor(owner, map, x, y) {
+        super(owner, "Pawn", null, map, x, y);
     }
 
     /**

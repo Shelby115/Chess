@@ -78,6 +78,17 @@ class Map {
         return x < map.width && y < map.height;
     }
 
+    setHighlightedTiles(tileArray) {
+        this.highlightedTiles = tileArray;
+    }
+
+    getTileColor(x, y) {
+        let highlightedTile = (this.highlightedTiles || []).find(t => t.x === x && t.y === y);
+        return highlightedTile && highlightedTile.unit ? "red"
+             : highlightedTile ? "blue"
+             : "black";
+    }
+
     /**
      * Draws the map inside the canvas.
      * @param {HTMLCanvasElement} canvas The canvas element to draw the map inside.
@@ -86,6 +97,7 @@ class Map {
         const map = this;
         const tileSize = 50;
         map.foreachTile((x, y, unit) => {
+            canvas.strokeStyle = map.getTileColor(x, y);
             canvas.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
             if (unit !== null) {
                 unit.draw(canvas, tileSize);

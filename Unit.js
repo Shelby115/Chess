@@ -2,14 +2,16 @@ class Unit {
 
     /**
      * Constructs a unit with the specified name and position on the map.
+     * @param {string} owner The owner of the unit (Who controls it).
      * @param {string} name The name of the unit (e.g., Pawn, Rook, Knight, King, etc).
      * @param {string} image The filepath to the image that will visually represent the unit.
      * @param {Map} map The map the unit will be added to.
      * @param {int} x The x coordinate (should not be greater than or equal to the map's width).
      * @param {int} y The y coordinate (should not be greater than or equal to the map's height).
      */
-    constructor(name, image, map, x, y) {
+    constructor(owner, name, image, map, x, y) {
         this.name = name;
+        this.owner = owner;
         this.image = image;
         this.map = map;
         this.x = x;
@@ -42,7 +44,29 @@ class Unit {
         return unit.map.areValidCoordinates(x, y);
     }
 
-    draw(canvas, tileSize) {
+    getMoveablePositions() {
+        
+        let unit = this;
+        let map = unit.map;
+        let positions = [];
+
+        map.foreachTile((x, y, unit) => {
+            if (unit.canMoveToPosition(x, y)) {
+                positions.push({
+                    x: x,
+                    y: y,
+                    unit: unit
+                });
+            }    
+        });
+
+        return new Promise(resolve => {
+            resolve(positions);
+        });
+
+    }
+
+    async draw(canvas, tileSize) {
         const unit = this;
         const offsetForCenter = tileSize * 0.5;
         canvas.beginPath();
