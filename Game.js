@@ -1,38 +1,57 @@
 class Game {
     constructor(canvas) {
-        this.canvas = canvas.getContext("2d");
-        this.map = new Map(50, 8, 8);
-        for (let x = 0; x < 8; x++) {
-            let p1 = new Pawn("Player1", this.map, x, 1, "South");
-            let p2 = new Pawn("Player2", this.map, x, 6, "North");
+        
+		// Game Setup
+		const game = this;
+		game.canvas = canvas.getContext("2d");
+		game.width = canvas.width;
+		game.height = canvas.height;
+		game.left = canvas.offsetLeft + canvas.clientLeft;
+		game.top = canvas.offsetTop + canvas.clientTop;
+        game.map = new Map(50, 8, 8);
+        
+		// Unit Setup
+		for (let x = 0; x < 8; x++) {
+            let p1 = new Pawn("Player1", game.map, x, 1, "South");
+            let p2 = new Pawn("Player2", game.map, x, 6, "North");
         }
 		
-		const game = this;
-		const left = canvas.offsetLeft + canvas.clientLeft;
-		const top = canvas.offsetTop + canvas.clientTop;
 		canvas.addEventListener("click", function (e) {
 			
-			const x = e.pageX - left;
-			const y = e.pageY - top;
-			const tileCoordinates = game.map.getTileCoordinatesFromPixelCoordinates(x, y);
-			let selectedUnit = null;
-			
-			// Select the unit on the clicked tile, if there is one. Set all others to unselected.
-			game.map.foreachTile(function (x, y, tile) {
-				const isSelected = x === tileCoordinates.x && y === tileCoordinates.y;
-				if (tile.unit) {
-					tile.unit.isSelected = isSelected;
-					if (isSelected) { selectedUnit = tile.unit; }
+			const tileCoordinates = game.map.getTileCoordinatesFromPixelCoordinates(e.pageX - game.left, e.pageY - game.top);
+			game.map.getTile(tileCoordinates.x, tileCoordinates.y, (x, y, clickedTile) => {
+
+				let clickedUnit = clickedTile.unit || null;
+
+				// Move the unit if the tile clicked can be moved to by the selectedUnit.
+				if (clickedTile.isMoveable) {
+					game.map.foreachTile((x, y, tile) => {
+						const unit = tile.unit;
+						if (unit && unit.isSelected) {
+							game.map.setUnit(clickedTile.x, clickedTile.y, unit);
+							game.map.setUnit(unit.x, unit.y, null);
+							unit.x = clickedTile.x;
+							unit.y = clickedTile.y;
+							clickedTile.isMoveable = false;
+							game.draw();
+						}
+					});
 				}
-			});
-			
-			if (selectedUnit !== null) {
-				// Select the tiles the selected unit can move to, if there is one. Set all others to unselected.
-				game.map.foreachTile(function (x, y, destinationTile) {
-					const isTileSelected = selectedUnit.canMoveToPosition(x, y);
-					destinationTile.isSelected = isTileSelected;
+				
+				// For each tile, set the isSelected status of the unit on it, if there is one.
+				game.map.foreachTile((x, y, tile) => {
+					const isSelected = tile === clickedTile;
+					if (tile.unit) {
+						tile.unit.isSelected = isSelected;
+					}
 				});
-			}
+
+				// For each tile, set the isSelected status of it.
+				game.map.foreachTile((x, y, tile) => {
+					tile.isMoveable = clickedUnit !== null ? clickedUnit.canMoveToPosition(x, y) : false;
+				});
+
+			});
 			
 			game.draw();
 			
@@ -41,6 +60,7 @@ class Game {
 
     draw() {
         let game = this;
+        game.canvas.clearRect(0, 0, game.width, game.height);
         game.map.draw(game.canvas);
     }
 }

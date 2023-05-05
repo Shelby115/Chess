@@ -67,14 +67,16 @@ class Unit {
 
     }
 
-    async draw(canvas, tileSize) {
+    draw(canvas, tileSize) {
         const unit = this;
         const offsetForCenter = tileSize * 0.5;
+        const fillStyle = canvas.fillStyle;
         canvas.beginPath();
 		canvas.fillStyle = unit.isSelected === true ? "orange" : "black";
         canvas.arc(unit.x * tileSize + offsetForCenter, unit.y * tileSize + offsetForCenter, 15, 0, 2 * Math.PI);
         canvas.stroke();
 		canvas.fill();
+        canvas.fillStyle = fillStyle;
     }
 	
 }
