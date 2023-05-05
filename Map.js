@@ -18,7 +18,7 @@ class Map {
 				map.tiles[x][y] = {
 					x: x,
 					y: y,
-					isSelected: false,
+					isMoveable: false,
 					unit: null
 				};
             }
@@ -66,6 +66,12 @@ class Map {
         });
     }
 
+    getTile(x, y, action) {
+        this.foreachTile((cx, cy, tile) => {
+            if (x === cx && y === cy) { action(x, y, tile); }
+        });
+    }
+
     /**
      * Gets the unit at the specified position.
      * @param {int} x The x coordinate (should not be greater than or equal to the map's width).
@@ -104,13 +110,6 @@ class Map {
         this.highlightedTiles = tileArray;
     }
 
-    getTileColor(x, y) {
-        let highlightedTile = (this.highlightedTiles || []).find(t => t.x === x && t.y === y);
-        return highlightedTile && highlightedTile.unit ? "red"
-             : highlightedTile ? "blue"
-             : "black";
-    }
-
     /**
      * Draws the map inside the canvas.
      * @param {HTMLCanvasElement} canvas The canvas element to draw the map inside.
@@ -118,12 +117,23 @@ class Map {
     draw(canvas) {
         const map = this;
         const tileSize = map.tileSize;
+        
         map.foreachTile((x, y, tile) => {
-            canvas.strokeStyle = tile.isSelected === true ? "skyblue" : "black";
             canvas.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
             if (tile.unit !== null) {
                 tile.unit.draw(canvas, tileSize);
             }
+        });
+
+        map.foreachTile((x, y, tile) => {
+            if (tile.isMoveable === false) { return; }
+            const style = canvas.strokeStyle;
+            const line = canvas.lineWidth;
+            canvas.strokeStyle = "#426cf5";
+            canvas.lineWidth = 3;
+            canvas.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
+            canvas.strokeStyle = style;
+            canvas.lineWidth = line;
         });
     }
 }
