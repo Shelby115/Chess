@@ -2,18 +2,40 @@ class Map {
 
     /**
      * Constructs a map with the specified dimensions.
-     * @param {int} width 
-     * @param {int} height 
+	 * @param {int} tileSize The size of each tile in pixels.
+     * @param {int} width The width (x coordinate) of the map.
+     * @param {int} height The height (y coordinate) of the map.
      */
-    constructor(width, height) {
+    constructor(tileSize, width, height) {
         let map = this;
+		map.tileSize = tileSize;
         map.width = width;
         map.height = height;
         map.tiles = {};
-        map.foreachTile(function (x, y, unit) {
-            map.setUnit(x, y, null);
-        });
+		for (let x = 0; x < map.width; x++) {
+            for (let y = 0; y < map.height; y++) {
+                map.tiles[x] = map.tiles[x] || {};
+				map.tiles[x][y] = {
+					x: x,
+					y: y,
+					isSelected: false,
+					unit: null
+				};
+            }
+        }
     }
+	
+	/**
+	 * Retrieves the tile that is at the specified canvas coordinates.
+	 * @param {Number} The pixel X coordinate.
+	 * @param {Number} The pixel Y coordinate.
+	 */
+	getTileCoordinatesFromPixelCoordinates(pixelX, pixelY) {
+		const map = this;
+		const mapX = Math.trunc(pixelX / map.tileSize);
+		const mapY = Math.trunc(pixelY / map.tileSize);
+		return { x: mapX, y: mapY };
+	}
 
     /**
      * Executes the action function for each tile in the map.
@@ -23,7 +45,7 @@ class Map {
         let map = this;
         for (let x = 0; x < map.width; x++) {
             for (let y = 0; y < map.height; y++) {
-                let shouldStop = action(x, y, map.getUnit(x, y));
+                let shouldStop = action(x, y, map.tiles[x][y]);
                 if (shouldStop === true) { return; }
             }
         }
@@ -53,7 +75,7 @@ class Map {
     getUnit(x, y) {
         let map = this;
         if (!map.tiles[x]) { return null; }
-        return map.tiles[x][y];
+        return map.tiles[x][y].unit;
     }
 
     /**
@@ -65,7 +87,7 @@ class Map {
     setUnit(x, y, unit) {
         let map = this;
         map.tiles[x] = map.tiles[x] || {};
-        map.tiles[x][y] = unit;
+        map.tiles[x][y].unit = unit;
     }
 
     /**
@@ -95,12 +117,12 @@ class Map {
      */
     draw(canvas) {
         const map = this;
-        const tileSize = 50;
-        map.foreachTile((x, y, unit) => {
-            canvas.strokeStyle = map.getTileColor(x, y);
+        const tileSize = map.tileSize;
+        map.foreachTile((x, y, tile) => {
+            canvas.strokeStyle = tile.isSelected === true ? "skyblue" : "black";
             canvas.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
-            if (unit !== null) {
-                unit.draw(canvas, tileSize);
+            if (tile.unit !== null) {
+                tile.unit.draw(canvas, tileSize);
             }
         });
     }

@@ -18,6 +18,7 @@ class Unit {
         this.originalX = x;
         this.y = y;
         this.originalY = y;
+		this.isSelected = false;
         map.setUnit(x, y, this);
     }
 
@@ -70,7 +71,10 @@ class Unit {
         const unit = this;
         const offsetForCenter = tileSize * 0.5;
         canvas.beginPath();
+		canvas.fillStyle = unit.isSelected === true ? "orange" : "black";
         canvas.arc(unit.x * tileSize + offsetForCenter, unit.y * tileSize + offsetForCenter, 15, 0, 2 * Math.PI);
         canvas.stroke();
+		canvas.fill();
     }
+	
 }

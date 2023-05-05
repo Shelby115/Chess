@@ -5,9 +5,11 @@ class Pawn extends Unit {
      * @param {Map} map The map the unit will be added to.
      * @param {int} x The x coordinate (should not be greater than or equal to the map's width).
      * @param {int} y The y coordinate (should not be greater than or equal to the map's height).
+	 * @param {string} A direction the piece is facing (i.e., Pawns). Valid values are North and South.
      */
-    constructor(owner, map, x, y) {
+    constructor(owner, map, x, y, direction) {
         super(owner, "Pawn", null, map, x, y);
+		this.direction = direction || null;
     }
 
     /**
@@ -18,6 +20,7 @@ class Pawn extends Unit {
      * @returns {boolean} Whether the pawn may move to the specified position.
      */
     canMoveToPosition(x, y) {
+		
         let unit = this;
 
         // Position must be valid and inside the map.
@@ -28,7 +31,8 @@ class Pawn extends Unit {
         if (unit.x === x && unit.y === y) { return false; }
 
         // Pawns cannot move backwards.
-        if (y > unit.y) { return false; }
+		if (unit.direction === "South" && y < unit.y) { return false; }
+        else if (unit.direction === "North" && y > unit.y) { return false; }
 
         // Pawns can move 2 spaces only on their first turn; otherwise, 1 space.
         const maxY = unit.hasMovedBefore() ? 1 : 2;
@@ -41,5 +45,6 @@ class Pawn extends Unit {
         if (xDiff > maxX || yDiff <= 0) { return false; }
 
         return true;
+		
     }
 }
